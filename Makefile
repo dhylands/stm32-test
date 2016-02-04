@@ -62,6 +62,7 @@ OBJ = $(addprefix $(BUILD)/,\
 	$(STARTUP_S:.s=.o) \
 	system_stm32f4xx.o \
 	clock.o \
+	gpio.o \
 	$(TARGET).o \
 	stm32f4xx_it.o \
 	stm32f4xx_hal.o \

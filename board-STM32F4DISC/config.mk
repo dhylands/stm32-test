@@ -1,0 +1,2 @@
+LDSCRIPT = STM32F407VGTx_FLASH.ld
+STARTUP_S = startup_stm32f407xx.s

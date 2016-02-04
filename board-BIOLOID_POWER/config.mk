@@ -1,0 +1,2 @@
+LDSCRIPT = STM32F401VEHx_FLASH.ld
+STARTUP_S = startup_stm32f401xe.s
