@@ -4,6 +4,8 @@ $(error Invalid BOARD specified)
 endif
 include $(BOARD_DIR)/config.mk
 
+HAL_FAMILY ?= f4
+
 TARGET ?= blinky
 
 # Turn on increased build verbosity by defining BUILD_VERBOSE in your main
@@ -42,11 +44,16 @@ SIZE = $(CROSS_COMPILE)size
 INC =  -I.
 INC += -Icmsis/inc
 INC += -Icmsis/devinc
-INC += -Ihal/f4
+INC += -Ihal/$(HAL_FAMILY)
 INC += -I$(BOARD_DIR)
 
+CFLAGS_CORTEX_M3 = -mthumb -mtune=cortex-m3 -mabi=aapcs-linux -mcpu=cortex-m3 -fsingle-precision-constant -Wdouble-promotion
 CFLAGS_CORTEX_M4 = -mthumb -mtune=cortex-m4 -mabi=aapcs-linux -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant -Wdouble-promotion
-CFLAGS = $(INC) -Wall -ansi -std=gnu99 -nostdlib $(CFLAGS_CORTEX_M4) $(COPT)
+
+CFLAGS_HAL_FAMILY_f1 = $(CFLAGS_CORTEX_M3)
+CFLAGS_HAL_FAMILY_f4 = $(CFLAGS_CORTEX_M4)
+
+CFLAGS = $(INC) -Wall -ansi -std=gnu99 -nostdlib $(CFLAGS_HAL_FAMILY_$(HAL_FAMILY)) $(COPT)
 
 #Debugging/Optimization
 ifeq ($(DEBUG), 1)
@@ -60,15 +67,16 @@ LDFLAGS = --nostdlib -T $(BOARD_DIR)/$(LDSCRIPT) -Map=$(@:.elf=.map) --cref
 
 OBJ = $(addprefix $(BUILD)/,\
 	$(STARTUP_S:.s=.o) \
-	system_stm32f4xx.o \
+	system_stm32$(HAL_FAMILY)xx.o \
 	clock.o \
 	gpio.o \
 	$(TARGET).o \
-	stm32f4xx_it.o \
-	stm32f4xx_hal.o \
-	stm32f4xx_hal_cortex.o \
-	stm32f4xx_hal_gpio.o \
-	stm32f4xx_hal_rcc.o \
+	stm32$(HAL_FAMILY)xx_it.o \
+	stm32$(HAL_FAMILY)xx_hal.o \
+	stm32$(HAL_FAMILY)xx_hal_cortex.o \
+	stm32$(HAL_FAMILY)xx_hal_gpio.o \
+	stm32$(HAL_FAMILY)xx_hal_rcc.o \
+	string0.o \
 	)
 
 all: $(BUILD)/$(TARGET).elf
@@ -93,7 +101,7 @@ $(BUILD)/%.o: %.s
 	$(ECHO) "AS $<"
 	$(Q)$(AS) -o $@ $<
 
-vpath %.c hal/f4 $(BOARD_DIR)
+vpath %.c hal/$(HAL_FAMILY) $(BOARD_DIR)
 $(BUILD)/%.o: %.c
 	$(call compile_c)
 
@@ -110,6 +118,14 @@ $(BUILD)/$(TARGET).elf: $(OBJ)
 
 stlink: $(BUILD)/$(TARGET).bin
 	$(Q)st-flash --reset write $(BUILD)/$(TARGET).bin 0x08000000
+
+uart: $(BUILD)/$(TARGET).bin
+	$(Q)./stm32loader.py -p /dev/ttyUSB0 -evw $(BUILD)/$(TARGET).bin
+
+# Unprotect does a MASS erase, so it shouldn't try to flash as well.
+# And on the STM32F103, the ACK never gets received
+uart-unprotect: $(BUILD)/$(TARGET).bin
+	$(Q)./stm32loader.py -p /dev/ttyUSB0 -uV
 
 clean:
 	$(RM) -rf $(BUILD)
