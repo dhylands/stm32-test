@@ -23,15 +23,25 @@ Connect a UART to these pins and set the B0 jumper to 1.
 The board I got was locked. I made a few tweaks to stm32loader.py to add a -u
 command to do the appropriate unlock:
 ```
-./stm32loader.py -p /dev/ttyUSB0 -uV
+../stm32loader.py -p /dev/ttyUSB0 -uV
 ```
 
 ### Flash usbdfu.bin
 ```
-./stm32loader.py -p /dev/ttyUSB0 -evw usbdfu.bin
+../stm32loader.py -p /dev/ttyUSB0 -evw usbdfu.bin
 ```
 
 Unplug and replug and you should see a USB device with 0483:df11 show up using
 ```dfu-util -l```
 
 Use ```dfu-util``` to flash new firmware.
+
+### to boot into the Bootloader
+
+Leave PA10 unconnected.
+Unplug and replug the USB connector.
+
+### to boot into the Application
+
+Connect PA10 to ground
+Unplug and replug the USB connector.
