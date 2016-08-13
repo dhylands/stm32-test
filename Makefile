@@ -5,6 +5,7 @@ endif
 include $(BOARD_DIR)/config.mk
 
 HAL_FAMILY ?= f4
+FLASH_ADDR ?= 0x8000000
 
 TARGET ?= blinky
 
@@ -105,11 +106,14 @@ vpath %.c hal/$(HAL_FAMILY) $(BOARD_DIR)
 $(BUILD)/%.o: %.c
 	$(call compile_c)
 
-pgm: $(BUILD)/$(TARGET).bin
-	dfu-util -a 0 -D $^ -s 0x8000000:leave
+pgm: $(BUILD)/$(TARGET).dfu
+	dfu-util -a 0 -D $^ -s $(FLASH_ADDR):leave
 
 $(BUILD)/$(TARGET).bin: $(BUILD)/$(TARGET).elf
 	$(OBJCOPY) -O binary $^ $@
+
+$(BUILD)/$(TARGET).dfu: $(BUILD)/$(TARGET).bin
+	$(Q)./dfu.py -D 0x1eaf:0x0003 -b 0:$^ $@
 
 $(BUILD)/$(TARGET).elf: $(OBJ)
 	$(ECHO) "LINK $@"
@@ -117,14 +121,14 @@ $(BUILD)/$(TARGET).elf: $(OBJ)
 	$(Q)$(SIZE) $@
 
 stlink: $(BUILD)/$(TARGET).bin
-	$(Q)st-flash --reset write $(BUILD)/$(TARGET).bin 0x08000000
+	$(Q)st-flash --reset write $^ $(FLASH_ADDR)
 
 uart: $(BUILD)/$(TARGET).bin
-	$(Q)./stm32loader.py -p /dev/ttyUSB0 -evw $(BUILD)/$(TARGET).bin
+	$(Q)./stm32loader.py -p /dev/ttyUSB0 -evw $^
 
 # Unprotect does a MASS erase, so it shouldn't try to flash as well.
 # And on the STM32F103, the ACK never gets received
-uart-unprotect: $(BUILD)/$(TARGET).bin
+uart-unprotect:
 	$(Q)./stm32loader.py -p /dev/ttyUSB0 -uV
 
 clean:

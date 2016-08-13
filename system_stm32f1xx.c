@@ -172,6 +172,9 @@ const uint8_t APBPrescTable[8] =  {0, 0, 0, 0, 1, 2, 3, 4};
   * @param  None
   * @retval None
   */
+
+extern void *g_pfnVectors;
+
 void SystemInit (void)
 {
   /* Reset the RCC clock configuration to the default reset state(for debug purpose) */
@@ -223,7 +226,13 @@ void SystemInit (void)
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else
+  #if 0
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+  #else
+  // If we're using a bootloader, then our FLASH_BASE will be relocated to be after the bootloader,
+  // so use the address of g_pfnVectors instead.
+  SCB->VTOR = (unsigned long)&g_pfnVectors | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+  #endif
 #endif
 }
 
