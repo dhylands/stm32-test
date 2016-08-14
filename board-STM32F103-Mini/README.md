@@ -1,11 +1,15 @@
-usbdfu.bin was built from https://github.com/libopencm3/libopencm3-examples
-in the examples/stm32/f1/stm32-h103/usb_dfu directory.
+A modified version of usbdfu.bin was built from the generic-stm32f103 branch
+of https://github.com/dhylands/libopencm3-examples
+which was forked from https://github.com/libopencm3/libopencm3-examples
 
-It runs at 0x08000000 and expects the application program to run at 0x08002000
+The source can be found in the examples/stm32/f1/stm32-h103/usb_dfu directory.
 
-You can use dfu-util to upload.
+The bootloader runs at 0x08000000 and expects the application program to run
+at 0x08002000.
 
-Use stm32loader.py using the UART to flash usbdfu.bin
+You can use dfu-util or pydfu.py to upload.
+
+Use stm32loader.py using the UART bootloader to flash usbdfu.bin
 
 ## Flashing the USB DFU bootloader
 
@@ -38,10 +42,11 @@ Use ```dfu-util``` to flash new firmware.
 
 ### to boot into the Bootloader
 
-Leave PA10 unconnected.
-Unplug and replug the USB connector.
+Connect BOOT1 (aka PB2) to 1
+Press RESET
 
 ### to boot into the Application
 
-Connect PA10 to ground
-Unplug and replug the USB connector.
+Connect BOOT1 (aka PB2) to 0
+Press RESET
+
