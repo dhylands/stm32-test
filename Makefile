@@ -7,6 +7,12 @@ include $(BOARD_DIR)/config.mk
 HAL_FAMILY ?= f4
 FLASH_ADDR ?= 0x8000000
 
+ifeq ($(findstring CYGWIN_NT,$(shell uname -s)),CYGWIN_NT)
+USE_PYDFU = 0
+else
+USE_PYDFU = 1
+endif
+
 TARGET ?= blinky
 
 # Turn on increased build verbosity by defining BUILD_VERBOSE in your main
@@ -107,13 +113,17 @@ $(BUILD)/%.o: %.c
 	$(call compile_c)
 
 pgm: $(BUILD)/$(TARGET).dfu
-	dfu-util -a 0 -D $^ -s $(FLASH_ADDR):leave
+ifeq ($(USE_PYDFU),1)
+	$(Q)./pydfu.py -u $^
+else
+	$(Q)dfu-util -a 0 -D $^ -s:leave
+endif
 
 $(BUILD)/$(TARGET).bin: $(BUILD)/$(TARGET).elf
 	$(OBJCOPY) -O binary $^ $@
 
 $(BUILD)/$(TARGET).dfu: $(BUILD)/$(TARGET).bin
-	$(Q)./dfu.py -D 0x1eaf:0x0003 -b 0:$^ $@
+	$(Q)./dfu.py -b $(FLASH_ADDR):$^ $@
 
 $(BUILD)/$(TARGET).elf: $(OBJ)
 	$(ECHO) "LINK $@"
