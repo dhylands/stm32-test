@@ -45,6 +45,7 @@ CROSS_COMPILE = arm-none-eabi-
 AS = $(CROSS_COMPILE)as
 CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
+GDB = $(CROSS_COMPILE)gdb
 OBJCOPY = $(CROSS_COMPILE)objcopy
 SIZE = $(CROSS_COMPILE)size
 
@@ -59,6 +60,7 @@ CFLAGS_CORTEX_M4 = -mthumb -mtune=cortex-m4 -mabi=aapcs-linux -mcpu=cortex-m4 -m
 
 CFLAGS_HAL_FAMILY_f1 = $(CFLAGS_CORTEX_M3)
 CFLAGS_HAL_FAMILY_f4 = $(CFLAGS_CORTEX_M4)
+CFLAGS_HAL_FAMILY_l4 = $(CFLAGS_CORTEX_M4)
 
 CFLAGS = $(INC) -Wall -ansi -std=gnu99 -nostdlib $(CFLAGS_HAL_FAMILY_$(HAL_FAMILY)) $(COPT)
 
@@ -72,6 +74,12 @@ endif
 
 LDFLAGS = --nostdlib -T $(BOARD_DIR)/$(LDSCRIPT) -Map=$(@:.elf=.map) --cref
 
+ifeq ($(TARGET),boot-stub)
+OBJ = $(addprefix $(BUILD)/,\
+	$(STARTUP_S:.s=.o) \
+	$(TARGET).o \
+	)
+else
 OBJ = $(addprefix $(BUILD)/,\
 	$(STARTUP_S:.s=.o) \
 	system_stm32$(HAL_FAMILY)xx.o \
@@ -85,6 +93,10 @@ OBJ = $(addprefix $(BUILD)/,\
 	stm32$(HAL_FAMILY)xx_hal_rcc.o \
 	string0.o \
 	)
+endif
+#	stm32$(HAL_FAMILY)xx_hal_pwr.o \
+#	stm32$(HAL_FAMILY)xx_hal_pwr_ex.o \
+
 
 all: $(BUILD)/$(TARGET).elf
 
@@ -135,6 +147,10 @@ stlink: $(BUILD)/$(TARGET).bin
 
 uart: $(BUILD)/$(TARGET).bin
 	$(Q)./stm32loader.py -p /dev/ttyUSB0 -evw $^
+
+run: $(BUILD)/$(TARGET).elf
+	$(GDB) -ex 'target extended-remote /dev/ttyACM0' -x gdbinit $<
+
 
 # Unprotect does a MASS erase, so it shouldn't try to flash as well.
 # And on the STM32F103, the ACK never gets received
