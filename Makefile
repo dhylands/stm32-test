@@ -148,8 +148,10 @@ stlink: $(BUILD)/$(TARGET).bin
 uart: $(BUILD)/$(TARGET).bin
 	$(Q)./stm32loader.py -p /dev/ttyUSB0 -evw $^
 
+GDB_PORT_Linux = /dev/ttyACM0
+GDB_PORT_Darwin = /dev/cu.usbmodemD5DFBBF1
 run: $(BUILD)/$(TARGET).elf
-	$(GDB) -ex 'target extended-remote /dev/ttyACM0' -x gdbinit $<
+	$(GDB) -ex 'target extended-remote ${GDB_PORT_$(shell uname)}' -x gdbinit $<
 
 
 # Unprotect does a MASS erase, so it shouldn't try to flash as well.
