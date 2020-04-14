@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file      startup_stm32f407xx.s
   * @author    MCD Application Team
-  * @version   V2.4.2
-  * @date      13-November-2015
   * @brief     STM32F407xx Devices vector table for GCC based toolchains.
   *            This module performs:
   *                - Set the initial SP
@@ -16,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -110,7 +108,7 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
   bl  SystemInit
 /* Call static constructors */
-/*    bl __libc_init_array */
+    bl __libc_init_array
 /* Call the application's entry point.*/
   bl  main
   bx  lr

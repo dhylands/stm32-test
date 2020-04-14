@@ -7,11 +7,17 @@ include $(BOARD_DIR)/config.mk
 HAL_FAMILY ?= f4
 FLASH_ADDR ?= 0x8000000
 
-ifeq ($(findstring CYGWIN_NT,$(shell uname -s)),CYGWIN_NT)
+UNAME = $(shell uname -s)
+ifeq ($(findstring CYGWIN_NT,$(UNAME)),CYGWIN_NT)
+USE_PYDFU = 0
+else
+ifeq ($(UNAME),Darwin)
 USE_PYDFU = 0
 else
 USE_PYDFU = 1
 endif
+endif
+$(info USE_PYDFU = $(USE_PYDFU))
 
 TARGET ?= blinky
 

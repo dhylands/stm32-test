@@ -2,35 +2,17 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.4.2
-  * @date    10-November-2015
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -58,7 +40,7 @@
   * @{
   */
 
-#if (__MPU_PRESENT == 1)
+#if (__MPU_PRESENT == 1U)
 /** @defgroup CORTEX_MPU_Region_Initialization_Structure_definition MPU Region Initialization Structure Definition
   * @brief  MPU Region initialization structure
   * @{
@@ -105,16 +87,16 @@ typedef struct
 /** @defgroup CORTEX_Preemption_Priority_Group CORTEX Preemption Priority Group
   * @{
   */
-#define NVIC_PRIORITYGROUP_0         ((uint32_t)0x00000007) /*!< 0 bits for pre-emption priority
-                                                                 4 bits for subpriority */
-#define NVIC_PRIORITYGROUP_1         ((uint32_t)0x00000006) /*!< 1 bits for pre-emption priority
-                                                                 3 bits for subpriority */
-#define NVIC_PRIORITYGROUP_2         ((uint32_t)0x00000005) /*!< 2 bits for pre-emption priority
-                                                                 2 bits for subpriority */
-#define NVIC_PRIORITYGROUP_3         ((uint32_t)0x00000004) /*!< 3 bits for pre-emption priority
-                                                                 1 bits for subpriority */
-#define NVIC_PRIORITYGROUP_4         ((uint32_t)0x00000003) /*!< 4 bits for pre-emption priority
-                                                                 0 bits for subpriority */
+#define NVIC_PRIORITYGROUP_0         0x00000007U /*!< 0 bits for pre-emption priority
+                                                      4 bits for subpriority */
+#define NVIC_PRIORITYGROUP_1         0x00000006U /*!< 1 bits for pre-emption priority
+                                                      3 bits for subpriority */
+#define NVIC_PRIORITYGROUP_2         0x00000005U /*!< 2 bits for pre-emption priority
+                                                      2 bits for subpriority */
+#define NVIC_PRIORITYGROUP_3         0x00000004U /*!< 3 bits for pre-emption priority
+                                                      1 bits for subpriority */
+#define NVIC_PRIORITYGROUP_4         0x00000003U /*!< 4 bits for pre-emption priority
+                                                      0 bits for subpriority */
 /**
   * @}
   */
@@ -122,8 +104,8 @@ typedef struct
 /** @defgroup CORTEX_SysTick_clock_source CORTEX _SysTick clock source
   * @{
   */
-#define SYSTICK_CLKSOURCE_HCLK_DIV8    ((uint32_t)0x00000000)
-#define SYSTICK_CLKSOURCE_HCLK         ((uint32_t)0x00000004)
+#define SYSTICK_CLKSOURCE_HCLK_DIV8    0x00000000U
+#define SYSTICK_CLKSOURCE_HCLK         0x00000004U
 
 /**
   * @}
@@ -133,10 +115,11 @@ typedef struct
 /** @defgroup CORTEX_MPU_HFNMI_PRIVDEF_Control MPU HFNMI and PRIVILEGED Access control
   * @{
   */
-#define  MPU_HFNMI_PRIVDEF_NONE      ((uint32_t)0x00000000)
-#define  MPU_HARDFAULT_NMI           ((uint32_t)0x00000002)
-#define  MPU_PRIVILEGED_DEFAULT      ((uint32_t)0x00000004)
-#define  MPU_HFNMI_PRIVDEF           ((uint32_t)0x00000006)
+#define  MPU_HFNMI_PRIVDEF_NONE           0x00000000U
+#define  MPU_HARDFAULT_NMI                MPU_CTRL_HFNMIENA_Msk
+#define  MPU_PRIVILEGED_DEFAULT           MPU_CTRL_PRIVDEFENA_Msk
+#define  MPU_HFNMI_PRIVDEF               (MPU_CTRL_HFNMIENA_Msk | MPU_CTRL_PRIVDEFENA_Msk)
+
 /**
   * @}
   */
@@ -273,8 +256,8 @@ typedef struct
   */
 
 /** @addtogroup CORTEX_Exported_Functions_Group1
- * @{
- */
+  * @{
+  */
 /* Initialization and de-initialization functions *****************************/
 void HAL_NVIC_SetPriorityGrouping(uint32_t PriorityGroup);
 void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority);
@@ -287,12 +270,9 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb);
   */
 
 /** @addtogroup CORTEX_Exported_Functions_Group2
- * @{
- */
+  * @{
+  */
 /* Peripheral Control functions ***********************************************/
-#if (__MPU_PRESENT == 1)
-void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init);
-#endif /* __MPU_PRESENT */
 uint32_t HAL_NVIC_GetPriorityGrouping(void);
 void HAL_NVIC_GetPriority(IRQn_Type IRQn, uint32_t PriorityGroup, uint32_t* pPreemptPriority, uint32_t* pSubPriority);
 uint32_t HAL_NVIC_GetPendingIRQ(IRQn_Type IRQn);
@@ -302,6 +282,12 @@ uint32_t HAL_NVIC_GetActive(IRQn_Type IRQn);
 void HAL_SYSTICK_CLKSourceConfig(uint32_t CLKSource);
 void HAL_SYSTICK_IRQHandler(void);
 void HAL_SYSTICK_Callback(void);
+
+#if (__MPU_PRESENT == 1U)
+void HAL_MPU_Enable(uint32_t MPU_Control);
+void HAL_MPU_Disable(void);
+void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init);
+#endif /* __MPU_PRESENT */
 /**
   * @}
   */
@@ -323,16 +309,16 @@ void HAL_SYSTICK_Callback(void);
                                        ((GROUP) == NVIC_PRIORITYGROUP_3) || \
                                        ((GROUP) == NVIC_PRIORITYGROUP_4))
 
-#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x10)
+#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x10U)
 
-#define IS_NVIC_SUB_PRIORITY(PRIORITY)         ((PRIORITY) < 0x10)
+#define IS_NVIC_SUB_PRIORITY(PRIORITY)         ((PRIORITY) < 0x10U)
 
-#define IS_NVIC_DEVICE_IRQ(IRQ)                ((IRQ) >= 0x00)
+#define IS_NVIC_DEVICE_IRQ(IRQ)                ((IRQ) >= (IRQn_Type)0x00U)
 
 #define IS_SYSTICK_CLK_SOURCE(SOURCE) (((SOURCE) == SYSTICK_CLKSOURCE_HCLK) || \
                                        ((SOURCE) == SYSTICK_CLKSOURCE_HCLK_DIV8))
 
-#if (__MPU_PRESENT == 1)
+#if (__MPU_PRESENT == 1U)
 #define IS_MPU_REGION_ENABLE(STATE) (((STATE) == MPU_REGION_ENABLE) || \
                                      ((STATE) == MPU_REGION_DISABLE))
 
@@ -405,49 +391,6 @@ void HAL_SYSTICK_Callback(void);
   */
 
 /* Private functions ---------------------------------------------------------*/
-/** @defgroup CORTEX_Private_Functions CORTEX Private Functions
-  * @brief    CORTEX private  functions
-  * @{
-  */
-
-#if (__MPU_PRESENT == 1)
-/**
-  * @brief  Disables the MPU
-  * @retval None
-  */
-__STATIC_INLINE void HAL_MPU_Disable(void)
-{
-  /* Disable fault exceptions */
-  SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;
-
-  /* Disable the MPU */
-  MPU->CTRL  &= ~MPU_CTRL_ENABLE_Msk;
-}
-
-/**
-  * @brief  Enables the MPU
-  * @param  MPU_Control: Specifies the control mode of the MPU during hard fault,
-  *          NMI, FAULTMASK and privileged access to the default memory
-  *          This parameter can be one of the following values:
-  *            @arg MPU_HFNMI_PRIVDEF_NONE
-  *            @arg MPU_HARDFAULT_NMI
-  *            @arg MPU_PRIVILEGED_DEFAULT
-  *            @arg MPU_HFNMI_PRIVDEF
-  * @retval None
-  */
-__STATIC_INLINE void HAL_MPU_Enable(uint32_t MPU_Control)
-{
-  /* Enable the MPU */
-  MPU->CTRL   = MPU_Control | MPU_CTRL_ENABLE_Msk;
-
-  /* Enable fault exceptions */
-  SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
-}
-#endif /* __MPU_PRESENT */
-
-/**
-  * @}
-  */
 
 /**
   * @}
