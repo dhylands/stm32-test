@@ -4,6 +4,9 @@
 
 #define LED1_PORT     GPIOA
 #define LED1_PIN      GPIO_PIN_8
+#define LED1_OFF      1
+#define LED1_ON       0
+
 
 #define SW_PORT       GPIOC
 #define SW_PIN        GPIO_PIN_1

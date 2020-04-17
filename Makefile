@@ -72,7 +72,7 @@ CFLAGS = $(INC) -Wall -ansi -std=gnu99 -nostdlib $(CFLAGS_HAL_FAMILY_$(HAL_FAMIL
 
 #Debugging/Optimization
 ifeq ($(DEBUG), 1)
-CFLAGS += -g
+CFLAGS += -ggdb
 COPT = -O0
 else
 COPT += -Os -DNDEBUG
@@ -99,6 +99,12 @@ OBJ = $(addprefix $(BUILD)/,\
 	stm32$(HAL_FAMILY)xx_hal_rcc.o \
 	string0.o \
 	)
+endif
+ifeq ($(TARGET),uart_poll)
+OBJ +=  $(addprefix $(BUILD)/,\
+	stm32$(HAL_FAMILY)xx_hal_uart.o \
+	stm32$(HAL_FAMILY)xx_hal_dma.o \
+)
 endif
 #	stm32$(HAL_FAMILY)xx_hal_pwr.o \
 #	stm32$(HAL_FAMILY)xx_hal_pwr_ex.o \
@@ -155,7 +161,7 @@ uart: $(BUILD)/$(TARGET).bin
 	$(Q)./stm32loader.py -p /dev/ttyUSB0 -evw $^
 
 GDB_PORT_Linux = /dev/ttyACM0
-GDB_PORT_Darwin = /dev/cu.usbmodemD5DFBBF1
+GDB_PORT_Darwin = /dev/cu.usbmodem7ABA4DC11
 run: $(BUILD)/$(TARGET).elf
 	$(GDB) -ex 'target extended-remote ${GDB_PORT_$(shell uname)}' -x gdbinit $<
 
