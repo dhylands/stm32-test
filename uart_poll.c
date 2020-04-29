@@ -24,6 +24,37 @@ int main(void)
     GPIO_InitStruct.Pin = LED1_PIN;
     HAL_GPIO_Init(LED1_PORT, &GPIO_InitStruct);
 
+#if defined(UART1_TX_PORT)
+
+    __HAL_RCC_USART1_CLK_ENABLE();
+
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Alternate = UART1_AF;
+
+    GPIO_clock_enable(UART1_TX_PORT);
+    GPIO_InitStruct.Pin = UART1_TX_PIN;
+    HAL_GPIO_Init(UART1_TX_PORT, &GPIO_InitStruct);
+
+    GPIO_clock_enable(UART1_RX_PORT);
+    GPIO_InitStruct.Pin = UART1_RX_PIN;
+    HAL_GPIO_Init(UART1_RX_PORT, &GPIO_InitStruct);
+
+    UART_HandleTypeDef huart;
+    memset(&huart, 0, sizeof(huart));
+    huart.Instance = USART1;
+    huart.Init.BaudRate = 115200;
+    huart.Init.WordLength = UART_WORDLENGTH_8B;
+    huart.Init.StopBits = UART_STOPBITS_1;
+    huart.Init.Parity = UART_PARITY_NONE;
+    huart.Init.Mode = UART_MODE_TX_RX;
+    huart.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_Init(&huart);
+
+#endif
+
 #if defined(UART4_TX_PORT)
 
     __HAL_RCC_UART4_CLK_ENABLE();

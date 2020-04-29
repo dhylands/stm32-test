@@ -59,7 +59,7 @@
 /* #define HAL_CRYP_MODULE_ENABLED     */
 /* #define HAL_DAC_MODULE_ENABLED      */
 /* #define HAL_DCMI_MODULE_ENABLED     */
-/* #define HAL_DMA_MODULE_ENABLED      */
+#define HAL_DMA_MODULE_ENABLED
 /* #define HAL_DMA2D_MODULE_ENABLED    */
 /* #define HAL_ETH_MODULE_ENABLED      */
 #define HAL_FLASH_MODULE_ENABLED
@@ -82,8 +82,8 @@
 /* #define HAL_SD_MODULE_ENABLED       */
 /* #define HAL_SPI_MODULE_ENABLED      */
 /* #define HAL_TIM_MODULE_ENABLED      */
-/* #define HAL_UART_MODULE_ENABLED     */
-/* #define HAL_USART_MODULE_ENABLED    */
+#define HAL_UART_MODULE_ENABLED
+#define HAL_USART_MODULE_ENABLED
 /* #define HAL_IRDA_MODULE_ENABLED     */
 /* #define HAL_SMARTCARD_MODULE_ENABLED*/
 /* #define HAL_WWDG_MODULE_ENABLED     */
@@ -129,6 +129,10 @@
 #if !defined  (LSE_VALUE)
  #define LSE_VALUE  ((uint32_t)32768)    /*!< Value of the External Low Speed oscillator in Hz */
 #endif /* LSE_VALUE */
+
+#if !defined  (LSE_STARTUP_TIMEOUT)
+  #define LSE_STARTUP_TIMEOUT    (5000U)   /*!< Time out for LSE start up, in ms */
+#endif /* LSE_STARTUP_TIMEOUT */
 
 /**
   * @brief External clock source for I2S peripheral

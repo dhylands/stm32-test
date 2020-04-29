@@ -1,0 +1,2 @@
+LDSCRIPT = STM32F411CE_FLASH.ld
+STARTUP_S = startup_stm32f411xe.s
