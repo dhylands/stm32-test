@@ -41,8 +41,11 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-/* FLASH (rx)      : ORIGIN = 0x8002000, LENGTH = 120K */
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K
+/* If using the DFU bootloader, then we need to skip over it */
+FLASH (rx)      : ORIGIN = 0x8002000, LENGTH = 120K
+
+/* If flashing directly to flash, then this address can be used */
+/* FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K */
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 20K
 }
 

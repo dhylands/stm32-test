@@ -33,9 +33,9 @@ static portTASK_FUNCTION(vLEDFlashTask, pvParameters)
     (void) pvParameters;    // not used
 
     TickType_t xLastFlashTime;
-    TickType_t xFlashDelay100msec;
+    TickType_t xFlashDelay50msec;
 
-    xFlashDelay100msec = 100 / portTICK_PERIOD_MS;
+    xFlashDelay50msec = 50 / portTICK_PERIOD_MS;
 
     /* We need to initialise xLastFlashTime prior to the first call to
      * vTaskDelayUntil(). */
@@ -47,22 +47,16 @@ static portTASK_FUNCTION(vLEDFlashTask, pvParameters)
         // critical sections.
 
         HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, LED1_ON);
-        vTaskDelayUntil(&xLastFlashTime, xFlashDelay100msec);
+        vTaskDelayUntil(&xLastFlashTime, xFlashDelay50msec);
 
         HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, LED1_OFF);
-        vTaskDelayUntil(&xLastFlashTime, xFlashDelay100msec);
+        vTaskDelayUntil(&xLastFlashTime, xFlashDelay50msec);
 
         HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, LED1_ON);
-        vTaskDelayUntil(&xLastFlashTime, xFlashDelay100msec);
+        vTaskDelayUntil(&xLastFlashTime, xFlashDelay50msec);
 
         HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, LED1_OFF);
-        vTaskDelayUntil(&xLastFlashTime, xFlashDelay100msec * 2);
-
-        HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, LED1_ON);
-        vTaskDelayUntil(&xLastFlashTime, xFlashDelay100msec);
-
-        HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, LED1_OFF);
-        vTaskDelayUntil(&xLastFlashTime, xFlashDelay100msec * 4);
+        vTaskDelayUntil(&xLastFlashTime, xFlashDelay50msec * 7);
     }
 }
 

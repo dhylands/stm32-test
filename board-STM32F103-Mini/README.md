@@ -15,12 +15,13 @@ Use stm32loader.py using the UART bootloader to flash usbdfu.bin
 
 ### Connect up a tty-level serial adapter
 
-| Pin  | Signal    |
-| ---- | --------- |
-| PA9  | USART1_TX |
-| PA10 | USART1_RX |
+| Pin  | Signal    | Serial Adapter |
+| ---- | --------- | -------------- |
+| PA9  | USART1_TX |  RX            |
+| PA10 | USART1_RX |  TX            |
+| GND  | Ground    |  Ground        |
 
-Connect a UART to these pins and set the B0 jumper to 1.
+Connect a UART to these pins, B0 jumper (closest to the edge of the board) to 1 and the B1 jumper (closest to the RESET signal) to 0.
 
 ### Unlock the chip
 
@@ -44,6 +45,8 @@ Use ```dfu-util``` to flash new firmware.
 
 Connect BOOT1 (aka PB2) to 1
 Press RESET
+
+Note: BOOT1 is closest to the RESET button.
 
 ### to boot into the Application
 

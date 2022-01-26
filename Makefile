@@ -68,7 +68,10 @@ INC += -Icmsis/devinc
 INC += -Ihal/$(HAL_FAMILY)
 INC += -I$(BOARD_DIR)
 ifeq ($(USE_FREERTOS),1)
-INC += -Ifreertos/include -Ifreertos/portable/GCC/ARM_CM4F
+FREERTOS_PROCESSOR_f1 = ARM_CM3
+FREERTOS_PROCESSOR_f4 = ARM_CM4F
+FREERTOS_PORTABLE = freertos/portable/GCC/$(FREERTOS_PROCESSOR_$(HAL_FAMILY))
+INC += -Ifreertos/include -I$(FREERTOS_PORTABLE)
 endif
 
 CFLAGS_CORTEX_M3 = -mthumb -mtune=cortex-m3 -mabi=aapcs-linux -mcpu=cortex-m3 -fsingle-precision-constant -Wdouble-promotion
@@ -156,7 +159,7 @@ $(BUILD)/%.o: %.s
 	$(ECHO) "AS $<"
 	$(Q)$(AS) -o $@ $<
 
-vpath %.c hal/$(HAL_FAMILY) $(BOARD_DIR) freertos freertos/portable/GCC/ARM_CM4F freertos/portable/MemMang
+vpath %.c hal/$(HAL_FAMILY) $(BOARD_DIR) freertos $(FREERTOS_PORTABLE) freertos/portable/MemMang
 $(BUILD)/%.o: %.c
 	$(call compile_c)
 
