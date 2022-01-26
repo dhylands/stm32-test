@@ -17,8 +17,8 @@ Use stm32loader.py using the UART bootloader to flash usbdfu.bin
 
 | Pin  | Signal    | Serial Adapter |
 | ---- | --------- | -------------- |
-| PA9  | USART1_TX |  RX            |
-| PA10 | USART1_RX |  TX            |
+| PA9  | USART1_TX |  RXI           |
+| PA10 | USART1_RX |  TXO           |
 | GND  | Ground    |  Ground        |
 
 Connect a UART to these pins, B0 jumper (closest to the edge of the board) to 1 and the B1 jumper (closest to the RESET signal) to 0.
@@ -32,6 +32,8 @@ command to do the appropriate unlock:
 ```
 
 ### Flash usbdfu.bin
+A precompiled version of usbdfu.bin can be found in the board-STM32F103-Mini directory.
+
 ```
 ../stm32loader.py -p /dev/ttyUSB0 -evw usbdfu.bin
 ```
@@ -39,7 +41,7 @@ command to do the appropriate unlock:
 Unplug and replug and you should see a USB device with 0483:df11 show up using
 ```dfu-util -l```
 
-Use ```dfu-util``` to flash new firmware.
+Use ```dfu-util``` to flash new firmware (or `make BOARD=STM32F103-Mini pgm` to flash using the Makefile from this repository).
 
 ### to boot into the Bootloader
 
