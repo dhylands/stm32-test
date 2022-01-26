@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # -*- coding: utf-8 -*-
 # vim: sw=4:ts=4:si:et:enc=utf-8
@@ -115,13 +115,13 @@ class CommandInterface(object):
         stop = time.time() + 5.0
 
         while time.time() <= stop:
-            self.sp.write('\x7f')
+            self.sp.write(b'\x7f')
 
             got = self.sp.read()
 
             # The chip will ACK a sync the very first time and
             # NACK it every time afterwards
-            if got and got in '\x79\x1f':
+            if got and got in b'\x79\x1f':
                 # Synced up
                 return
 
@@ -132,8 +132,7 @@ class CommandInterface(object):
         self.reset()
 
     def cmdGeneric(self, cmd):
-        self.sp.write(chr(cmd))
-        self.sp.write(chr(cmd ^ 0xFF)) # Control byte
+        self.sp.write(bytes([cmd, cmd ^ 0xff]))
         return self._wait_for_ack(hex(cmd))
 
     def cmdGet(self):
@@ -177,7 +176,7 @@ class CommandInterface(object):
         byte1 = (addr >> 16) & 0xFF
         byte0 = (addr >> 24) & 0xFF
         crc = byte0 ^ byte1 ^ byte2 ^ byte3
-        return (chr(byte0) + chr(byte1) + chr(byte2) + chr(byte3) + chr(crc))
+        return bytes([byte0, byte1, byte2, byte3, crc])
 
 
     def cmdReadMemory(self, addr, lng):
@@ -188,9 +187,9 @@ class CommandInterface(object):
             self._wait_for_ack("0x11 address failed")
             N = (lng - 1) & 0xFF
             crc = N ^ 0xFF
-            self.sp.write(chr(N) + chr(crc))
+            self.sp.write(bytes([N, crc]))
             self._wait_for_ack("0x11 length failed")
-            return map(lambda c: ord(c), self.sp.read(lng))
+            return list(self.sp.read(lng))
         else:
             raise CmdException("ReadMemory (0x11) failed")
 
@@ -213,21 +212,21 @@ class CommandInterface(object):
             #map(lambda c: hex(ord(c)), data)
             lng = (len(data)-1) & 0xFF
             mdebug(10, "    %s bytes to write" % [lng+1]);
-            self.sp.write(chr(lng)) # len really
+            self.sp.write(bytes([lng])) # len really
             crc = 0xFF
             try:
-              datastr = ""
+              datastr = b''
               for c in data:
                   crc = crc ^ c
-                  datastr = datastr+chr(c)
+                  datastr = datastr + bytes([c])
+              datastr = datastr + bytes([crc])
               self.sp.write(datastr)
-              self.sp.write(chr(crc))
               self._wait_for_ack("0x31 programming failed")
               mdebug(10, "    Write memory done")
             except:
               mdebug(5, "    WRITE FAIL - try and recover")
               for c in data:
-                self.sp.write(chr(255))
+                self.sp.write(b'\xff')
               mdebug(5, "    WRITE FAIL - wait")
               stop = time.time() + 1
               while time.time() < stop:
@@ -243,16 +242,15 @@ class CommandInterface(object):
             mdebug(10, "*** Erase memory command")
             if sectors is None:
                 # Global erase
-                self.sp.write(chr(0xFF))
-                self.sp.write(chr(0x00))
+                self.sp.write(b'\xff\x00')
             else:
                 # Sectors erase
-                self.sp.write(chr((len(sectors)-1) & 0xFF))
+                self.sp.write(bytes[(len(sectors)-1) & 0xFF])
                 crc = 0xFF
                 for c in sectors:
                     crc = crc ^ c
-                    self.sp.write(chr(c))
-                self.sp.write(chr(crc))
+                    self.sp.write(bytes([c]))
+                self.sp.write(bytes([crc]))
             self._wait_for_ack("0x43 erasing failed")
             mdebug(10, "    Erase memory done")
         else:
@@ -266,10 +264,9 @@ class CommandInterface(object):
             mdebug(10, "*** Extended erase memory command")
             # Global mass erase
             mdebug(5, "Global mass erase; this may take a while")
-            self.sp.write(chr(0xFF))
-            self.sp.write(chr(0xFF))
+            self.sp.write(b'\xff\xff')
             # Checksum
-            self.sp.write(chr(0x00))
+            self.sp.write(b'\x00')
             self._wait_for_ack("0x44 extended erase failed",
                                timeout=self.GLOBAL_ERASE_TIMEOUT_SECONDS)
             mdebug(10, "    Extended erase memory done")
@@ -280,12 +277,12 @@ class CommandInterface(object):
     def cmdWriteProtect(self, sectors):
         if self.cmdGeneric(0x63):
             mdebug(10, "*** Write protect command")
-            self.sp.write(chr((len(sectors)-1) & 0xFF))
+            self.sp.write(bytes([(len(sectors)-1) & 0xFF]))
             crc = 0xFF
             for c in sectors:
                 crc = crc ^ c
-                self.sp.write(chr(c))
-            self.sp.write(chr(crc))
+                self.sp.write(bytes([c]))
+            self.sp.write(bytes([crc]))
             self._wait_for_ack("0x63 write protect failed")
             mdebug(10, "    Write protect done")
         else:
@@ -380,14 +377,10 @@ class CommandInterface(object):
         if self.cmdGeneric(0x31):
           self.sp.write(self._encode_addr(RCC_CFGR))
           self._wait_for_ack("0x31 address failed")
-          self.sp.write(chr(3)) # len really
+          self.sp.write(b'\x03') # len really
           crc = 0xFF^reg[0]^reg[1]^reg[2]^reg[3];
           crc = 40 # FIXME - Why is CRC different to what I'd expect? Python says 212 above
-          self.sp.write(chr(reg[0]))
-          self.sp.write(chr(reg[1]))
-          self.sp.write(chr(reg[2]))
-          self.sp.write(chr(reg[3]))            
-          self.sp.write(chr(crc))
+          self.sp.write(bytes([reg[0], reg[1], reg[2], reg[3], crc]))
           self._wait_for_ack("0x31 programming failed")
           mdebug(10, "    PCLK write memory done")
 
@@ -417,7 +410,7 @@ def read(filename):
     with open(filename, 'rb') as f:
         bytes = f.read()
 
-    if bytes.startswith('\x7FELF'):
+    if bytes.startswith(b'\x7FELF'):
         # Actually an ELF file.  Convert to binary
         handle, path = tempfile.mkstemp(suffix='.bin', prefix='stm32loader')
 
@@ -439,7 +432,7 @@ def read(filename):
             # Remove the temporary file
             os.unlink(path)
     else:
-        return [ord(x) for x in bytes]
+        return list(bytes)
 
 if __name__ == "__main__":
 
@@ -535,7 +528,7 @@ if __name__ == "__main__":
 
         chip_id = cmd.cmdGetID()
         assert len(chip_id) == 2, "Unreasonable chip id: %s" % repr(chip_id)
-        chip_id_num = (ord(chip_id[0]) << 8) | ord(chip_id[1])
+        chip_id_num = (chip_id[0] << 8) | chip_id[1]
         chip_id_str = CHIP_ID_STRS.get(chip_id_num, None)
 
         if chip_id_str is None:
@@ -575,7 +568,8 @@ if __name__ == "__main__":
 
         if not conf['write'] and conf['read']:
             rdata = cmd.readMemory(conf['address'], conf['len'])
-            file(args[0], 'wb').write(''.join(map(chr,rdata)))
+            with open(args[0], 'wb') as f:
+                f.write(bytes(rdata))
 
     finally:
         cmd.releaseChip()
