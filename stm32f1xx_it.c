@@ -122,6 +122,7 @@ void UsageFault_Handler(void)
   }
 }
 
+#if !defined(FREERTOS)
 /**
   * @brief  This function handles SVCall exception.
   * @param  None
@@ -130,6 +131,7 @@ void UsageFault_Handler(void)
 void SVC_Handler(void)
 {
 }
+#endif
 
 /**
   * @brief  This function handles Debug Monitor exception.
@@ -140,6 +142,7 @@ void DebugMon_Handler(void)
 {
 }
 
+#if !defined(FREERTOS)
 /**
   * @brief  This function handles PendSVC exception.
   * @param  None
@@ -148,7 +151,9 @@ void DebugMon_Handler(void)
 void PendSV_Handler(void)
 {
 }
+#endif
 
+#if !defined(FREERTOS)
 /**
   * @brief  This function handles SysTick Handler.
   * @param  None
@@ -158,6 +163,7 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();
 }
+#endif
 
 /******************************************************************************/
 /*                 STM32F1xx Peripherals Interrupt Handlers                   */

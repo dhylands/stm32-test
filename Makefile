@@ -21,6 +21,12 @@ $(info USE_PYDFU = $(USE_PYDFU))
 
 TARGET ?= blinky
 
+ifeq ($(findstring freertos,$(TARGET)),freertos)
+USE_FREERTOS = 1
+else
+USE_FREERTOS = 0
+endif
+
 # Turn on increased build verbosity by defining BUILD_VERBOSE in your main
 # Makefile or in your environment. You can also use V=1 on the make command
 # line.
@@ -50,6 +56,7 @@ CROSS_COMPILE = arm-none-eabi-
 
 AS = $(CROSS_COMPILE)as
 CC = $(CROSS_COMPILE)gcc
+CPP = $(CC) -E
 LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
 OBJCOPY = $(CROSS_COMPILE)objcopy
@@ -60,6 +67,9 @@ INC += -Icmsis/inc
 INC += -Icmsis/devinc
 INC += -Ihal/$(HAL_FAMILY)
 INC += -I$(BOARD_DIR)
+ifeq ($(USE_FREERTOS),1)
+INC += -Ifreertos/include -Ifreertos/portable/GCC/ARM_CM4F
+endif
 
 CFLAGS_CORTEX_M3 = -mthumb -mtune=cortex-m3 -mabi=aapcs-linux -mcpu=cortex-m3 -fsingle-precision-constant -Wdouble-promotion
 CFLAGS_CORTEX_M4 = -mthumb -mtune=cortex-m4 -mabi=aapcs-linux -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant -Wdouble-promotion
@@ -70,6 +80,10 @@ CFLAGS_HAL_FAMILY_l4 = $(CFLAGS_CORTEX_M4)
 
 CFLAGS = $(INC) -Wall -ansi -std=gnu99 -nostdlib $(CFLAGS_HAL_FAMILY_$(HAL_FAMILY)) $(COPT)
 
+ifeq ($(USE_FREERTOS),1)
+CFLAGS += -DFREERTOS=1
+endif
+
 #Debugging/Optimization
 ifeq ($(DEBUG), 1)
 CFLAGS += -ggdb
@@ -79,6 +93,16 @@ COPT += -Os -DNDEBUG
 endif
 
 LDFLAGS = --nostdlib -T $(BOARD_DIR)/$(LDSCRIPT) -Map=$(@:.elf=.map) --cref
+
+ifeq ($(USE_FREERTOS),1)
+FREERTOS_OBJ += \
+	heap_4.o \
+	list.o \
+	port.o \
+	queue.o \
+	tasks.o \
+	timers.o
+endif
 
 ifeq ($(TARGET),boot-stub)
 OBJ = $(addprefix $(BUILD)/,\
@@ -92,6 +116,7 @@ OBJ = $(addprefix $(BUILD)/,\
 	clock.o \
 	gpio.o \
 	$(TARGET).o \
+	$(FREERTOS_OBJ) \
 	stm32$(HAL_FAMILY)xx_it.o \
 	stm32$(HAL_FAMILY)xx_hal.o \
 	stm32$(HAL_FAMILY)xx_hal_cortex.o \
@@ -108,7 +133,6 @@ OBJ +=  $(addprefix $(BUILD)/,\
 endif
 #	stm32$(HAL_FAMILY)xx_hal_pwr.o \
 #	stm32$(HAL_FAMILY)xx_hal_pwr_ex.o \
-
 
 all: $(BUILD)/$(TARGET).elf
 
@@ -132,9 +156,13 @@ $(BUILD)/%.o: %.s
 	$(ECHO) "AS $<"
 	$(Q)$(AS) -o $@ $<
 
-vpath %.c hal/$(HAL_FAMILY) $(BOARD_DIR)
+vpath %.c hal/$(HAL_FAMILY) $(BOARD_DIR) freertos freertos/portable/GCC/ARM_CM4F freertos/portable/MemMang
 $(BUILD)/%.o: %.c
 	$(call compile_c)
+
+$(BUILD)/%.pp: %.c
+	$(ECHO) "PreProcess $<"
+	$(Q)$(CPP) $(CFLAGS) -Wp,-C,-dD,-dI -o $@ $<
 
 pgm: $(BUILD)/$(TARGET).dfu
 ifeq ($(USE_PYDFU),1)
